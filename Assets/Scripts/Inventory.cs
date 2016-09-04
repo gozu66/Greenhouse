@@ -53,8 +53,6 @@ public class Inventory : MonoBehaviour
         currentlySelectedUISlot = inventorySlots[i];
     }
 
-
-    public Mesh m;
     public void addItem(int i)
     {
         if (itemList.Count >= inventorySlots.Length)
@@ -85,7 +83,7 @@ public class Inventory : MonoBehaviour
     void CreateWeedPlant(GameObject go, ListItem li, string strain)
     {
         Weed newWeed = go.AddComponent<Weed>();
-        go.AddComponent<MeshRenderer>();
+        MeshRenderer mr = go.AddComponent<MeshRenderer>();
         go.AddComponent<BoxCollider>();
         MeshFilter mf = go.AddComponent<MeshFilter>();
 
@@ -94,6 +92,8 @@ public class Inventory : MonoBehaviour
 
         newWeed.Strain = strain;            //XML Data
 
+        go.transform.Rotate(new Vector3(270, 0, 0));
+        mr.sharedMaterial = (Material)Resources.Load("Materials/Proto/Plant");
         li = new ListItem(go, newWeed);
         itemList.Add(li);
     }
@@ -101,12 +101,15 @@ public class Inventory : MonoBehaviour
     void CreatePlanter(GameObject go, ListItem li)
     {
         go.AddComponent<Planter>();
-        go.AddComponent<MeshRenderer>();
+        MeshRenderer mr = go.AddComponent<MeshRenderer>();
         go.AddComponent<BoxCollider>();
         MeshFilter mf = go.AddComponent<MeshFilter>();
 
         Mesh newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Equipment/planterTemp1", typeof(Mesh));
         mf.mesh = newMesh;
+
+        go.transform.Rotate(new Vector3(270, 0, 0));
+        mr.sharedMaterial = (Material)Resources.Load("Materials/Proto/Door");
 
         li = new ListItem(go, go.GetComponent<Planter>());
         itemList.Add(li);
