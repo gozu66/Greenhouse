@@ -72,7 +72,7 @@ public class Weed : Item
     void GrowTicker()
     {
         timeSincePlanted = Time.timeSinceLevelLoad - timeSincePlantedModifier;
-        currentHarvest = Grow();
+        currentHarvest = CalculateGrow();
 
         if (timeSincePlanted >= growTime)
         {
@@ -87,7 +87,7 @@ public class Weed : Item
         }
     }
 
-    int Grow()
+    int CalculateGrow()
     {
         //Check for attatchement buffs
         //check for debuffs

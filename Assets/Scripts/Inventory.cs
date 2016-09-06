@@ -40,8 +40,10 @@ public class Inventory : MonoBehaviour
         {
             foreach(ListItem i in itemList)
             {
-                print(i._gameObject.name);
+                print(i._gameObject.name);//i.strain + " "+i.gramsHeld+" grams");
             }
+            Debug.Log(itemList.Count);
+
         }
 
         if (weedList.Count > 0)
@@ -63,57 +65,113 @@ public class Inventory : MonoBehaviour
 
         switch (i)
         {
-            case 0:                
-                CreateWeedPlant(go, li, "African Bush");    //XML Data
+            case 0:
+                CreateObject(go, li, "African Bush");    //XML Data
                 break;
 
             case 1:
-                CreateWeedPlant(go, li, "Desert Weed");    //XML Data
+                CreateObject(go, li, "Desert Weed");    //XML Data
                 break;
 
 
             case 100:
-                CreatePlanter(go, li);
+                CreateObject(go, li, "NOT_WEED");
                 break;
 
         }
         SortInventorySprites();
     }
 
-    void CreateWeedPlant(GameObject go, ListItem li, string strain)
-    {
-        Weed newWeed = go.AddComponent<Weed>();
-        MeshRenderer mr = go.AddComponent<MeshRenderer>();
-        go.AddComponent<BoxCollider>();
-        MeshFilter mf = go.AddComponent<MeshFilter>();
+    /*   void CreateWeedPlant(GameObject go, ListItem li, string strain)
+       {
+           Weed newWeed = go.AddComponent<Weed>();
+           MeshRenderer mr = go.AddComponent<MeshRenderer>();
+           BoxCollider bc = go.AddComponent<BoxCollider>();
+           MeshFilter mf = go.AddComponent<MeshFilter>();
 
-        Mesh newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Plants/plantTemp1", typeof(Mesh));   //XML Mesh data
-        mf.mesh = newMesh;
+           Mesh newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Plants/plantTemp1", typeof(Mesh));   //XML Mesh data
+           Bounds newMeshBounds = newMesh.bounds;
+           mf.mesh = newMesh;
+           float offset = newMeshBounds.size.z / 2;
+           bc.center = new Vector3(bc.center.x, bc.center.y, bc.center.z + offset);
+           bc.size = newMeshBounds.extents * 2;
 
-        newWeed.Strain = strain;            //XML Data
+           newWeed.Strain = strain;            //XML Data
 
-        go.transform.Rotate(new Vector3(270, 0, 0));
-        mr.sharedMaterial = (Material)Resources.Load("Materials/Proto/Plant");
-        li = new ListItem(go, newWeed);
-        itemList.Add(li);
-    }
+           go.transform.Rotate(new Vector3(270, 0, 0));
 
-    void CreatePlanter(GameObject go, ListItem li)
-    {
-        go.AddComponent<Planter>();
-        MeshRenderer mr = go.AddComponent<MeshRenderer>();
-        go.AddComponent<BoxCollider>();
-        MeshFilter mf = go.AddComponent<MeshFilter>();
+           mr.sharedMaterial = (Material)Resources.Load("Materials/Proto/Plant");
 
-        Mesh newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Equipment/planterTemp1", typeof(Mesh));
-        mf.mesh = newMesh;
+           li = new ListItem(go, newWeed);
+           itemList.Add(li);
+       }
 
-        go.transform.Rotate(new Vector3(270, 0, 0));
-        mr.sharedMaterial = (Material)Resources.Load("Materials/Proto/Door");
+       void CreatePlanter(GameObject go, ListItem li)
+       {
+           go.AddComponent<Planter>();
+           MeshRenderer mr = go.AddComponent<MeshRenderer>();
+           BoxCollider bc = go.AddComponent<BoxCollider>();
+           MeshFilter mf = go.AddComponent<MeshFilter>();
 
-        li = new ListItem(go, go.GetComponent<Planter>());
-        itemList.Add(li);
-    }
+           Mesh newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Equipment/planterTemp1", typeof(Mesh));
+           Bounds newMeshBounds = newMesh.bounds;
+           mf.mesh = newMesh;
+           float offset = newMeshBounds.size.z / 2;
+           bc.center = new Vector3(bc.center.x, bc.center.y, bc.center.z + offset);
+           bc.size = newMeshBounds.extents * 2;
+
+           go.transform.Rotate(new Vector3(270, 0, 0));
+           mr.sharedMaterial = (Material)Resources.Load("Materials/Proto/Door");
+
+           li = new ListItem(go, go.GetComponent<Planter>());
+           itemList.Add(li);
+       }
+       */
+
+    void CreateObject(GameObject go, ListItem li, string strain)
+      {
+          Mesh newMesh;
+          Weed newWeed = null;
+          Material newMat;
+
+          if (strain != "NOT_WEED")
+          {
+              newWeed = go.AddComponent<Weed>();
+              newWeed.Strain = strain;            
+              newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Plants/plantTemp1", typeof(Mesh));           //XML Mesh data
+              newMat = (Material)Resources.Load("Materials/Proto/Plant");
+          }
+          else
+          {
+              go.AddComponent<Planter>();
+              newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Equipment/planterTemp1", typeof(Mesh));      //XML Mesh data
+              newMat = (Material)Resources.Load("Materials/Proto/Door");
+          }
+
+          MeshRenderer mr = go.AddComponent<MeshRenderer>();
+          BoxCollider bc = go.AddComponent<BoxCollider>();
+          MeshFilter mf = go.AddComponent<MeshFilter>();
+
+          Bounds newMeshBounds = newMesh.bounds;
+          mf.mesh = newMesh;
+          float offset = newMeshBounds.size.z / 2;
+          bc.center = new Vector3(bc.center.x, bc.center.y, bc.center.z + offset);
+          bc.size = newMeshBounds.extents * 2;        
+
+          go.transform.Rotate(new Vector3(270, 0, 0));
+          mr.sharedMaterial = newMat;
+
+          if (strain != "NOT_WEED")
+          {
+            li = new ListItem(go, newWeed);
+            itemList.Add(li);        
+          }
+          else
+          {
+            li = new ListItem(go, go.GetComponent<Planter>());
+            itemList.Add(li);
+          }
+      }
 
     public void AddWeed(string strain, int grams)
     {
@@ -129,19 +187,14 @@ public class Inventory : MonoBehaviour
         weedList.Add(reup);
     }
 
-    void SortWeedList()
-    {
-        for(int i = 0; i < weedList.Count; i++)
-        {
-            
-        }
-    }
-
     public void SelectItem(int i)
     {
+        if (i >= itemList.Count)
+            return;
+
         if (itemList[i]._gameObject.GetComponent<Planter>())
         {
-            itemList[i]._item.ToggleMoveable();
+            itemList[i]._gameObject.GetComponent<Planter>().ToggleMoveable();
         }
         else if(itemList[i]._gameObject.GetComponent<Weed>())
         {
@@ -151,9 +204,9 @@ public class Inventory : MonoBehaviour
 
     public void removeItem(Item equipment)
     {
-        foreach (ListItem x in itemList)
+        foreach(ListItem x in itemList)
         {
-            if (x._item == equipment)
+            if(x._item == equipment)
             {
                 itemList.Remove(x);
                 SortInventorySprites();
@@ -167,12 +220,12 @@ public class Inventory : MonoBehaviour
         for(int i = 0; i < inventorySlots.Length; i++)
         {
             if(i < itemList.Count)
-            {                
-                if (itemList[i]._item.GetComponent<Weed>())
+            {
+                if (itemList[i]._gameObject.GetComponent<Weed>())
                 {
                     inventorySlots[i].sprite = weedSeed;
                 }
-                else if (itemList[i]._item.GetComponent<Planter>())
+                else if (itemList[i]._gameObject.GetComponent<Planter>())
                 {
                     inventorySlots[i].sprite = smallPlanter;
                 }
