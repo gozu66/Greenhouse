@@ -12,7 +12,7 @@ public class Inventory : MonoBehaviour
         weedSeed, 
         weedPkg, 
         smallPlanter;
-    public Text weedListUI;
+   // public Text weedListUI;
 
     List<ListItem> itemList;
     List<WeedData> weedList;
@@ -20,6 +20,8 @@ public class Inventory : MonoBehaviour
 
     Image currentlySelectedUISlot;
 
+    List <Text> weedListUI;
+    VerticalLayoutGroup vLayout;
 
     void Awake()                                  
     {                                           
@@ -32,6 +34,9 @@ public class Inventory : MonoBehaviour
 
         itemList = new List<ListItem>();
         weedList = new List<WeedData>();
+
+        vLayout = FindObjectOfType<VerticalLayoutGroup>();
+        
     }
 
     void Update()
@@ -46,8 +51,8 @@ public class Inventory : MonoBehaviour
 
         }
 
-        if (weedList.Count > 0)
-            weedListUI.text = weedList[0].strain + "  " + weedList[0].gramsHeld + " grams";
+       // if (weedList.Count > 0)
+           // weedListUI.text = weedList[0].strain + "  " + weedList[0].gramsHeld + " grams";
     }
 
     public void SelectUISlot(int i)
@@ -185,6 +190,27 @@ public class Inventory : MonoBehaviour
         }
         WeedData reup = new WeedData(strain, grams);
         weedList.Add(reup);
+
+        Text newWeedUI = NewWeedUI(strain, grams);        
+        newWeedUI.transform.SetParent(vLayout.transform, false);
+        newWeedUI.color = Color.black;
+        Font _font = (Font)Resources.Load("Fonts/coolvetica rg");
+        newWeedUI.font = _font;                
+    }
+
+    void UpdateWeedUI()
+    {
+
+    }
+
+    Text NewWeedUI(string strain, int grams)
+    {
+        GameObject go = new GameObject();
+        go.AddComponent<CanvasRenderer>();
+        go.AddComponent<RectTransform>();
+        Text t = go.AddComponent<Text>();
+        t.text = strain + " " + grams + " grams";
+        return t;
     }
 
     public void SelectItem(int i)
