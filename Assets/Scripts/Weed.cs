@@ -11,7 +11,6 @@ public class Weed : Item
         {
             return strain;
         }
-
         set
         {
             strain = value;
@@ -40,7 +39,7 @@ public class Weed : Item
         {
             if(inHand)
             {
-                PlantSeed();
+                PlantSeed();                
             }
         }
     }
@@ -103,6 +102,8 @@ public class Weed : Item
         if (readyToHarvest)
         {
             Inventory.instance.AddWeed(Strain, currentHarvest);
+            //this.gameObject.SetActive(false);
+            Destroy(gameObject);
         }
     }
 }

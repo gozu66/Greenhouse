@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        webPages = new GameObject[2] { seedBankDotCom, growHausDotCom };
+        webPages = new GameObject[2] { seedBankDotCom, growHausDotCom };        
     }
 
     void Update()

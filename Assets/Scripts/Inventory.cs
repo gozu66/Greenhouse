@@ -7,52 +7,61 @@ public class Inventory : MonoBehaviour
 {
     public static Inventory instance;    
     
-    public Sprite 
-        blank, 
-        weedSeed, 
-        weedPkg, 
-        smallPlanter;
-   // public Text weedListUI;
+    public Sprite blank, weedSeed, weedPkg, smallPlanter;
 
     List<ListItem> itemList;
     List<WeedData> weedList;
-    public Image[] inventorySlots;
+    
+    Dictionary<string, Text> weedListUI = new Dictionary<string, Text>();
 
+    public Image[] inventorySlots;
     Image currentlySelectedUISlot;
 
-    List <Text> weedListUI;
-    VerticalLayoutGroup vLayout;
+    VerticalLayoutGroup weedListVLayout;
 
-    void Awake()                                  
-    {                                           
+    public Text UiCash;
+
+    int playerCash;
+    public int PlayerCash
+    {
+        get {
+            return playerCash;
+        }
+        set {
+            print("Cash was Set");
+            playerCash = value;
+        }
+    }
+    
+    void Awake()
+    {
         if (instance == null)                   //Singleton Declaration
-            instance = this;                    
-        else if (instance != this)              
-            Destroy(gameObject);                
-                                                
-        DontDestroyOnLoad(gameObject);          
+        {
+            instance = this;
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
 
+        DontDestroyOnLoad(gameObject);
+    }
+
+    void Start()
+    {                                              
         itemList = new List<ListItem>();
         weedList = new List<WeedData>();
 
-        vLayout = FindObjectOfType<VerticalLayoutGroup>();
-        
+        weedListVLayout = FindObjectOfType<VerticalLayoutGroup>();
+        UiCash = GameObject.FindWithTag("CashUI").GetComponent<Text>();
+
+        SetCash(100);
     }
 
-    void Update()
+    void SetCash(int cash)
     {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            foreach(ListItem i in itemList)
-            {
-                print(i._gameObject.name);//i.strain + " "+i.gramsHeld+" grams");
-            }
-            Debug.Log(itemList.Count);
-
-        }
-
-       // if (weedList.Count > 0)
-           // weedListUI.text = weedList[0].strain + "  " + weedList[0].gramsHeld + " grams";
+        int i = PlayerCash += cash;
+        UiCash.text = "$" + i.ToString();
     }
 
     public void SelectUISlot(int i)
@@ -86,52 +95,6 @@ public class Inventory : MonoBehaviour
         }
         SortInventorySprites();
     }
-
-    /*   void CreateWeedPlant(GameObject go, ListItem li, string strain)
-       {
-           Weed newWeed = go.AddComponent<Weed>();
-           MeshRenderer mr = go.AddComponent<MeshRenderer>();
-           BoxCollider bc = go.AddComponent<BoxCollider>();
-           MeshFilter mf = go.AddComponent<MeshFilter>();
-
-           Mesh newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Plants/plantTemp1", typeof(Mesh));   //XML Mesh data
-           Bounds newMeshBounds = newMesh.bounds;
-           mf.mesh = newMesh;
-           float offset = newMeshBounds.size.z / 2;
-           bc.center = new Vector3(bc.center.x, bc.center.y, bc.center.z + offset);
-           bc.size = newMeshBounds.extents * 2;
-
-           newWeed.Strain = strain;            //XML Data
-
-           go.transform.Rotate(new Vector3(270, 0, 0));
-
-           mr.sharedMaterial = (Material)Resources.Load("Materials/Proto/Plant");
-
-           li = new ListItem(go, newWeed);
-           itemList.Add(li);
-       }
-
-       void CreatePlanter(GameObject go, ListItem li)
-       {
-           go.AddComponent<Planter>();
-           MeshRenderer mr = go.AddComponent<MeshRenderer>();
-           BoxCollider bc = go.AddComponent<BoxCollider>();
-           MeshFilter mf = go.AddComponent<MeshFilter>();
-
-           Mesh newMesh = (Mesh)Resources.Load("Art_Assets/Meshes/Temp/Equipment/planterTemp1", typeof(Mesh));
-           Bounds newMeshBounds = newMesh.bounds;
-           mf.mesh = newMesh;
-           float offset = newMeshBounds.size.z / 2;
-           bc.center = new Vector3(bc.center.x, bc.center.y, bc.center.z + offset);
-           bc.size = newMeshBounds.extents * 2;
-
-           go.transform.Rotate(new Vector3(270, 0, 0));
-           mr.sharedMaterial = (Material)Resources.Load("Materials/Proto/Door");
-
-           li = new ListItem(go, go.GetComponent<Planter>());
-           itemList.Add(li);
-       }
-       */
 
     void CreateObject(GameObject go, ListItem li, string strain)
       {
@@ -184,7 +147,12 @@ public class Inventory : MonoBehaviour
         {
             if(wd.strain == strain)
             {
-                wd.gramsHeld += grams;
+                int newGrams = wd.gramsHeld += grams;
+                Text t;
+                if (weedListUI.TryGetValue(strain, out t))
+                {
+                    t.text = strain + " " + newGrams.ToString() + " g";
+                }
                 return;
             }
         }
@@ -192,15 +160,7 @@ public class Inventory : MonoBehaviour
         weedList.Add(reup);
 
         Text newWeedUI = NewWeedUI(strain, grams);        
-        newWeedUI.transform.SetParent(vLayout.transform, false);
-        newWeedUI.color = Color.black;
-        Font _font = (Font)Resources.Load("Fonts/coolvetica rg");
-        newWeedUI.font = _font;                
-    }
-
-    void UpdateWeedUI()
-    {
-
+        weedListUI.Add(strain, newWeedUI);
     }
 
     Text NewWeedUI(string strain, int grams)
@@ -209,7 +169,11 @@ public class Inventory : MonoBehaviour
         go.AddComponent<CanvasRenderer>();
         go.AddComponent<RectTransform>();
         Text t = go.AddComponent<Text>();
-        t.text = strain + " " + grams + " grams";
+        Font _font = (Font)Resources.Load("Fonts/coolvetica rg");
+        t.font = _font;
+        t.text = strain + " " + grams + " g";
+        t.color = Color.black;
+        t.transform.SetParent(weedListVLayout.transform, false);
         return t;
     }
 
